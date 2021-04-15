@@ -1,17 +1,13 @@
-from logging import error
-from types import new_class
 from pymongo.common import validate
-from datetime import datetime, time, timedelta, timezone, tzinfo
-from flask import Flask, render_template, request, redirect, session, url_for, Response
+from datetime import time
+from flask import Flask, request, redirect, session, Response
 from flask_hashing import Hashing
-from flask_moment import Moment
 from flask_cors import CORS
 import uuid
 import pymongo
 import random
 import string
 import time
-import urllib.parse
 import user_agents
 import requests
 import json
@@ -35,7 +31,6 @@ content = db['content']
 
 app = Flask(__name__)
 hashing = Hashing(app)
-moment = Moment(app)
 cors = CORS(app, supports_credentials=True)
 app.secret_key = "blah blah blah"
 

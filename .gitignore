@@ -1,4 +1,5 @@
 .env
+venv/
 bfg.jar
 reqres_cy.proto
 META_INF/
