@@ -13,7 +13,12 @@ import requests
 import json
 from dotenv import load_dotenv
 from os import environ
-from keyMakeSignCheck.KeyManagement import Signee
+try:
+    # Running from the api directory
+    from keyMakeSignCheck.KeyManagement import Signee
+except:
+    # Running from the root directory
+    from api.keyMakeSignCheck.KeyManagement import Signee
 
 load_dotenv()
 MONGODB_CONNECTION_STRING = environ.get('MONGODB_CONNECTION_STRING')
