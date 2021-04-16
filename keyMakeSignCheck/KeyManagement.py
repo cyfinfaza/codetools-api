@@ -10,12 +10,15 @@ import json
 
 
 class Signee:
-	def __init__(self, keyFile):
-		keyStrings = json.loads(keyFile.read())
-		public_bytes = base64.urlsafe_b64decode(keyStrings['public'])
+	def __init__(self, publicKey, privateKey):
+		public_bytes = base64.urlsafe_b64decode(publicKey)
 		self.public_key = load_pem_public_key(public_bytes)
-		private_bytes = base64.urlsafe_b64decode(keyStrings['private'])
+		private_bytes = base64.urlsafe_b64decode(privateKey)
 		self.private_key = load_pem_private_key(private_bytes, None)
+
+	def fromFile(keyFile):
+		keyStrings = json.loads(keyFile.read())
+		return Signee(keyStrings['public'], keyStrings['private'])
 
 	def sign(self, data: str):
 		signature = self.private_key.sign(

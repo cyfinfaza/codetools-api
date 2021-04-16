@@ -18,10 +18,11 @@ from keyMakeSignCheck.KeyManagement import Signee
 load_dotenv()
 MONGODB_CONNECTION_STRING = environ.get('MONGODB_CONNECTION_STRING')
 RECAPTCHA_SECRET = environ.get('RECAPTCHA_SECRET')
+SIGNEE_PUBLICKEY = environ.get('SIGNEE_PUBLICKEY')
+SIGNEE_PRIVATEKEY = environ.get('SIGNEE_PRIVATEKEY')
 
-
-signee = Signee(open('keys.json', 'r'))
-
+# signee = Signee.fromFile(open('keys.json', 'r'))
+signee = Signee(SIGNEE_PUBLICKEY, SIGNEE_PRIVATEKEY)
 
 client = pymongo.MongoClient(MONGODB_CONNECTION_STRING)
 db = client['codetools']
