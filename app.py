@@ -94,8 +94,11 @@ def validate(session):
 try:
     errorsFile = open("./errors.json", "r")
 except:
-    print("Could not open errors.json file.")
-    exit()
+    try:
+        errorsFile = open("./api/errors.json", "r")
+    except:
+        print("Could not open errors.json file.")
+        exit()
 
 try:
     ERRORS = json.loads(errorsFile.read())
