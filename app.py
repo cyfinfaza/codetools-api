@@ -542,5 +542,20 @@ def api_getContent(linkID):
         return error_json("api_general_session")
 
 
+@app.route("/api/challengeresults/<contentID>")
+def api_challengeResults(contentID):
+    contentData = content.find_one({'_id': contentID})
+    if contentData == None:
+        return error_json("api_general_contentNotFound")
+    if validate(session):
+        if contentData['type'] == 'challenge':
+            results = content.find({'assocChallenge': contentID})
+            return success_json(list(results))
+        else:
+            return error_json("api_challengeresults_contentType")
+    else:
+        return error_json("api_general_session")
+
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True, threaded=False)
