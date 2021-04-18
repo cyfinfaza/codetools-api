@@ -549,8 +549,20 @@ def api_challengeResults(contentID):
         return error_json("api_general_contentNotFound")
     if validate(session):
         if contentData['type'] == 'challenge':
-            results = content.find({'assocChallenge': contentID})
-            return success_json(list(results))
+            responses = list(content.find({'assocChallenge': contentID}))
+            owners = list(users.find({'_id':{'$in':[element['owner'] for element in responses]}}))
+            output = []
+            for element in responses:
+                newDict = element.copy()
+                COPYKEYS = ['username', 'actualname']
+                try:
+                    owner = [owner for owner in owners if owner['_id']==element['owner']][0]
+                    newDict['owner'] = {key:owner[key] for key in COPYKEYS}
+                except Exception as e:
+                    print(e)
+                    newDict['owner'] = {"[ERROR] User not found" for key in COPYKEYS}
+                output.append(newDict)
+            return success_json(output)
         else:
             return error_json("api_challengeresults_contentType")
     else:
