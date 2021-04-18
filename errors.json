@@ -15,5 +15,6 @@
   "api_contentset_jsonParse": "Could not parse request JSON",
   "api_contentset_noContentId": "Did not specify contentID",
   "api_new_contentType": "Cannot create content with this type.",
-  "api_challengeresults_contentType": "You can only view results for a challenge."
+  "api_challengeresults_contentType": "You can only view results for a challenge.",
+  "api_republish_contentType": "You can only republish a challenge."
 }

@@ -1,3 +1,4 @@
+from os import environ
 from pymongo.common import validate
 from datetime import time
 from flask import Flask, request, redirect, session, Response
@@ -12,7 +13,6 @@ import user_agents
 import requests
 import json
 from dotenv import load_dotenv
-from os import environ
 try:
     # Running from the api directory
     from keyMakeSignCheck.KeyManagement import Signee
@@ -526,6 +526,7 @@ def api_getContent(linkID):
                     'type': 'editor_challenge',
                     'owner': userData['_id'],
                     'assocChallenge': contentData['_id'],
+                    'description':contentData['description'],
                     'created': float(time.time()),
                     'modified': float(time.time()),
                     'args_mutable': [],
@@ -538,6 +539,37 @@ def api_getContent(linkID):
             return success_json({'_id':contentID, 'type':'editor_challenge'})
         else:
             return error_json("api_general_contentReadPermission")
+    else:
+        return error_json("api_general_session")
+
+
+@app.route("/api/republish/<contentID>", methods=['GET', 'POST'])
+def api_republish(contentID):
+    contentData = content.find_one({'_id': contentID})
+    if contentData == None:
+        return error_json("api_general_contentNotFound")
+    if validate(session):
+        if contentData['type'] == 'challenge':
+            updateKeys = ['description', 'args', 'starterCode']
+            if request.method == "POST":
+                requestData = request.get_json(force=True)
+                updateKeys = requestData
+            change = {}
+            if 'description' in updateKeys:
+                change['description'] = contentData['description']
+            if 'args' in updateKeys:
+                change['args_immutable'] = [
+                    {'id':arg['id'], 'arg':arg['arg'], 'match':False} for arg in contentData['args_mutable']
+                ]
+            if 'starterCode' in updateKeys:
+                change['code'] = {'$concat': [
+                                '$code', '\n\n//STARTER CODE REPUBLISHED, SEE BELOW\n//'+contentData['starterCode'].replace('\n', '\n//')
+                            ]}
+            print(change)
+            content.update_many({ 'assocChallenge': contentID },  [{ '$set': change }])
+            return success_json()
+        else:
+            return error_json("api_republish_contentType")
     else:
         return error_json("api_general_session")
 
