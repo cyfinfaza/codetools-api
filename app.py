@@ -211,6 +211,8 @@ def contentSet():
 @app.route('/contentget')
 @app.route('/api/contentget')
 def contentGet():
+    if not validate(session):
+        return error_json("api_general_session")
     try:
         contentID = request.args['id']
     except:
@@ -218,20 +220,21 @@ def contentGet():
     userContent = content.find_one({'_id': contentID})
     if not userContent:
         return error_json("api_general_contentNotFound")
-    if not validate(session):
-        return error_json("api_general_session")
     userData = users.find_one({'username': session['username']})
     owner = userContent['owner'] == userData['_id']
     signature = signee.sign(userContent['_id'])
     userContent['id_sig'] = signature
+    if owner:
+        return success_json(userContent)
     if userContent['type'] == 'challenge' and not owner:
         ALLOWED_CHALLENGE_FIELDS = ['_id', 'title',
                                     'description', 'owner', 'modified']
         return success_json({key: userContent[key] for key in userContent if key in ALLOWED_CHALLENGE_FIELDS})
-    if owner:
-        return success_json(userContent)
-    else:
-        return error_json("api_general_contentReadPermission")
+    if userContent['type'] == 'editor_challenge':
+        assocChallenge = content.find_one({'_id':userContent['assocChallenge']})
+        if assocChallenge['owner'] == userData['_id']:
+            return success_json(userContent)
+    return error_json("api_general_contentReadPermission")
 
 
 @app.route("/api/signin", methods=['POST'])
