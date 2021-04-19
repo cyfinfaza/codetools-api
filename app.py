@@ -556,7 +556,7 @@ def api_republish(contentID):
                 requestData = request.get_json(force=True)
                 updateKeys = requestData
             if len(updateKeys)<1:
-                error_json("api_republish_noneSelected")
+                return error_json("api_republish_noneSelected")
             change = {}
             if 'description' in updateKeys:
                 change['description'] = contentData['description']
