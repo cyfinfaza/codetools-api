@@ -1,4 +1,5 @@
 from os import environ
+import re
 from pymongo.common import validate
 from datetime import time
 from flask import Flask, request, redirect, session, Response
@@ -52,6 +53,8 @@ DEFAULT_SOLUTION = """public int solution(int a) {
 DEFAULT_STARTER_CODE = """public int myMethod(int a) {
 
 }"""
+
+REPUBLISH_EVENTKEY_TIMEOUT = 15
 
 
 def make_linkID():
@@ -570,11 +573,38 @@ def api_republish(contentID):
                             ]}
             print(change)
             content.update_many({ 'assocChallenge': contentID },  [{ '$set': change }])
-            return success_json()
+            eventKey = make_ID(64)
+            eventKeySignature = signee.sign(eventKey)
+            republishKeyData = {'key':eventKey, 'key_sig':eventKeySignature, 'expiration':float(time.time())+REPUBLISH_EVENTKEY_TIMEOUT}
+            content.update_one({'_id':contentID}, {'$set':{'republishKey':republishKeyData}})
+            return success_json(republishKeyData)
         else:
             return error_json("api_republish_contentType")
     else:
         return error_json("api_general_session")
+
+
+@app.route("/api/verifyrepublishkey/<contentID>", methods=['POST'])
+def api_republishKeyVerify(contentID):
+    try:
+        requestData = request.get_json(force=True)
+    except:
+        return error_json("api_general_jsonParse")
+    if not all(key in requestData for key in ['key', 'key_sig']):
+        return error_json("api_general_missingRequired")
+    if not signee.verify(requestData['key'], requestData['key_sig']):
+        return error_json("api_verifyrepublishkey_signature")
+    contentData = content.find_one({'_id': contentID})
+    if not contentData:
+        error_json("api_general_contentNotFound")
+    if not 'republishKey' in contentData:
+        return error_json("api_verifyrepublishkey_nokey")
+    if requestData['key'] != contentData['republishKey']['key']:
+        return error_json("api_verifyrepublishkey_key")
+    if time.time() > contentData['republishKey']['expiration']:
+        content.update_one({'_id':contentID}, {'$unset':{'republishKey':""}})
+        return error_json("api_verifyrepublishkey_timeout")
+    return success_json()
 
 
 @app.route("/api/challengeresults/<contentID>")

@@ -1,6 +1,8 @@
 {
   "api_general_session": "Invalid session. Sign in again.",
   "api_general_contentId": "Could not read or did not specify content ID.",
+  "api_general_jsonParse": "Could not parse request JSON",
+  "api_general_missingRequired": "Request body missing a required component",
   "api_general_contentNotFound": "Content not found.",
   "api_general_wrongPassword": "Wrong password.",
   "api_general_contentWritePermission": "You do not have permission to perform this write operation.",
@@ -17,5 +19,9 @@
   "api_new_contentType": "Cannot create content with this type.",
   "api_challengeresults_contentType": "You can only view results for a challenge.",
   "api_republish_contentType": "You can only republish a challenge.",
-  "api_republish_noneSelected": "Select at least one part of this content to republish."
+  "api_republish_noneSelected": "Select at least one part of this content to republish.",
+  "api_verifyrepublishkey_signature": "Signature is invalid",
+  "api_verifyrepublishkey_nokey": "There is no key in the database to check against.",
+  "api_verifyrepublishkey_key": "Key is invalid",
+  "api_verifyrepublishkey_timeout": "Key has timed out and will now be deleted."
 }
