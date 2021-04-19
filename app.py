@@ -9,6 +9,7 @@ import pymongo
 import random
 import string
 import time
+from pymongo.message import update
 import user_agents
 import requests
 import json
@@ -554,6 +555,8 @@ def api_republish(contentID):
             if request.method == "POST":
                 requestData = request.get_json(force=True)
                 updateKeys = requestData
+            if len(updateKeys)<1:
+                error_json("api_republish_noneSelected")
             change = {}
             if 'description' in updateKeys:
                 change['description'] = contentData['description']
