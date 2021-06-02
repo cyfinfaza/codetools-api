@@ -27,6 +27,7 @@ MONGODB_CONNECTION_STRING = environ.get('MONGODB_CONNECTION_STRING')
 RECAPTCHA_SECRET = environ.get('RECAPTCHA_SECRET')
 SIGNEE_PUBLICKEY = environ.get('SIGNEE_PUBLICKEY')
 SIGNEE_PRIVATEKEY = environ.get('SIGNEE_PRIVATEKEY')
+CORS_ENABLE = environ.get('CORS_ENABLE')
 
 # signee = Signee.fromFile(open('keys.json', 'r'))
 signee = Signee(SIGNEE_PUBLICKEY, SIGNEE_PRIVATEKEY)
@@ -39,7 +40,8 @@ content = db['content']
 
 app = Flask(__name__)
 hashing = Hashing(app)
-cors = CORS(app, supports_credentials=True)
+if CORS_ENABLE == "ENABLE":
+    cors = CORS(app, supports_credentials=True)
 app.secret_key = "blah blah blah"
 
 app.config.update(SESSION_COOKIE_SAMESITE='None', SESSION_COOKIE_SECURE=True)
